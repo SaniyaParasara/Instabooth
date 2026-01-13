@@ -1,0 +1,54 @@
+/* =========================================
+   MODULE: GLOBAL RESET & CURSOR
+   ========================================= */
+
+/* Only hide cursor on desktop devices (Mouse users) */
+@media (min-width: 768px) {
+    body {
+        cursor: none; /* Hides the default arrow */
+    }
+    
+    /* Ensure links and buttons don't show the default hand pointer */
+    a, button, .interactive {
+        cursor: none; 
+    }
+}
+
+/* =========================================
+   MODULE: CUSTOM SCROLLBAR
+   Style: Thin, Pill-shaped, Soft Grey
+   ========================================= */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #E4E4E7; /* Soft Grey */
+    border-radius: 100vh; /* Pill shape */
+    transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4F46E5; /* Studio Indigo on hover */
+}
+
+/* =========================================
+   MODULE: ANIMATION UTILITIES
+   Class: .reveal
+   Usage: Add to any element to make it slide up on scroll
+   ========================================= */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); /* "Expensive" easing */
+}
+
+/* JS adds this class when element enters viewport */
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
