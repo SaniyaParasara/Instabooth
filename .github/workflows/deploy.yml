@@ -10,11 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout the repository
+      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Configure AWS credentials (from GitHub Secrets)
+      # 2️⃣ Configure AWS credentials
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -22,12 +22,22 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # 3️⃣ Deploy static files to S3
-      - name: Sync files to S3
-        run: |
-          aws s3 sync . "s3://${{ secrets.S3_BUCKET_NAME }}" --delete --exclude ".git/*" --exclude ".github/*"
+      # 3️⃣ Verify S3 access (prevents silent failures)
+      - name: Verify S3 bucket access
+        run: aws s3 ls s3://${{ secrets.S3_BUCKET_NAME }}
 
-      # 4️⃣ Invalidate CloudFront cache
+      # 4️⃣ Deploy files to S3 (ONLY project files)
+      - name: Deploy to S3
+        run: |
+          aws s3 sync . s3://${{ secrets.S3_BUCKET_NAME }} \
+            --delete \
+            --exclude ".git/*" \
+            --exclude ".github/*" \
+            --exclude "node_modules/*"
+
+      # 5️⃣ Invalidate CloudFront cache
       - name: Invalidate CloudFront cache
         run: |
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
