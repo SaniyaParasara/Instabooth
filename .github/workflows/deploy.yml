@@ -23,23 +23,23 @@ jobs:
       - name: Verify S3 bucket access
         run: aws s3 ls s3://${{ secrets.S3_BUCKET_NAME }}
 
-      - name: Deploy to S3
+      - name: Deploy Assets to S3
         run: |
+          # 1. Sync all files (delete old ones, exclude git folders)
           aws s3 sync . s3://${{ secrets.S3_BUCKET_NAME }} \
             --delete \
             --exclude ".git/*" \
             --exclude ".github/*"
 
+          # 2. Overwrite index.html with "no-cache" header
+          # This forces the browser to always check for a new version
+          aws s3 cp index.html s3://${{ secrets.S3_BUCKET_NAME }}/index.html \
+            --metadata-directive REPLACE \
+            --cache-control "no-cache, no-store, must-revalidate" \
+            --content-type "text/html"
+
       - name: Invalidate CloudFront cache
         run: |
-          echo '{
-            "Paths": {
-              "Quantity": 1,
-              "Items": ["/*"]
-            },
-            "CallerReference": "github-actions-deploy"
-          }' > invalidation.json
-
           aws cloudfront create-invalidation \
             --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
-            --invalidation-batch file://invalidation.json
+            --paths "/*"
