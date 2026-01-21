@@ -33,3 +33,13 @@ jobs:
       - name: Invalidate CloudFront cache
         run: |
           echo '{
+            "Paths": {
+              "Quantity": 1,
+              "Items": ["/*"]
+            },
+            "CallerReference": "github-actions-deploy"
+          }' > invalidation.json
+
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --invalidation-batch file://invalidation.json
