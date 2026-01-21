@@ -31,14 +31,6 @@ jobs:
             --exclude ".github/*" \
             --exclude "node_modules/*"
 
-              - name: Debug CloudFront ID
-          run: |
-            if [ -z "${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}" ]; then
-              echo "CLOUDFRONT_DISTRIBUTION_ID is EMPTY"
-              exit 1
-            else
-              echo "CloudFront ID detected"
-            fi
 
       - name: Invalidate CloudFront cache
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
